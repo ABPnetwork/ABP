@@ -43,7 +43,7 @@ More information at [abpnetwork.io](http://www.abpnetwork.io).
 
 <table>
 <th>Phase</th><th>Block Height</th><th>Masternodes (70%)</th><th>PoS (10%)</th><th>Governance (15%)</th><th>Developments (5%)</th>
-<tr><td>Phase 1</td><td>2-10080</td><td>1.4 ABP </td><td>0.2 ABP</td><td>0.3 ABP</td><td>0.1 ABP</td><</tr>
+<tr><td>Phase 1</td><td>2-10080</td><td>1.4 ABP</td><td>0.2 ABP</td><td>0.3 ABP</td><td>0.1 ABP</td><</tr>
 <tr><td>Phase 2</td><td>10081-20160</td><td>2.8 ABP</td><td>0.4 ABP</td><td>0.6 ABP</td><td>0.2 ABP</td></tr>
 <tr><td>Phase 3</td><td>20161-30240</td><td>4.2 ABP</td><td>0.6 ABP</td><td>0.9 ABP</td><td>0.3 ABP</td></tr>
 <tr><td>Phase 4</td><td>30241-40320</td><td>5.6 ABP</td><td>0.8 ABP</td><td>1.2 ABP</td><td>0.4 ABP</td></tr>
@@ -95,5 +95,5 @@ More information at [abpnetwork.io](http://www.abpnetwork.io).
 <tr><td>Phase 51</td><td>493921-504000</td><td>2.8 ABP</td><td>0.4 ABP</td><td>0.6 ABP</td><td>0.2 ABP</td></tr>
 <tr><td>Phase 52</td><td>504001-514080</td><td>4.2 ABP</td><td>0.6 ABP</td><td>0.9 ABP</td><td>0.3 ABP</td></tr>
 <tr><td>Phase 53</td><td>514081-524160</td><td>5.6 ABP</td><td>0.8 ABP</td><td>1.2 ABP</td><td>0.4 ABP</td></tr>
-<tr><td>Phase 54</td><td>524161-Max Supply</td><td>5.6 ABP</td>0.8 ABP</td><td>1.2 ABP</td><td>0.4 ABP</td></tr>
-</table>0.6 ABP
+<tr><td>Phase 54</td><td>524161-Max Supply</td><td>5.6 ABP</td><td>0.8 ABP</td><td>1.2 ABP</td><td>0.4 ABP</td></tr>
+</table>
