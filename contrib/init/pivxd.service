@@ -1,19 +1,19 @@
 [Unit]
-Description=PIVX's distributed currency daemon
+Description=ABP's distributed currency daemon
 After=network.target
 
 [Service]
-User=pivx
-Group=pivx
+User=abp
+Group=abp
 
 Type=forking
-PIDFile=/var/lib/pivxd/pivxd.pid
+PIDFile=/var/lib/abpd/abpd.pid
 
-ExecStart=/usr/bin/pivxd -daemon -pid=/var/lib/pivxd/pivxd.pid \
-          -conf=/etc/pivx/pivx.conf -datadir=/var/lib/pivxd
+ExecStart=/usr/bin/abpd -daemon -pid=/var/lib/abpd/abpd.pid \
+          -conf=/etc/abp/abp.conf -datadir=/var/lib/abpd
 
-ExecStop=-/usr/bin/pivx-cli -conf=/etc/pivx/pivx.conf \
-         -datadir=/var/lib/pivxd stop
+ExecStop=-/usr/bin/abp-cli -conf=/etc/abp/abp.conf \
+         -datadir=/var/lib/abpd stop
 
 Restart=always
 PrivateTmp=true

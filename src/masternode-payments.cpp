@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2015 The Dash developers
-// Copyright (c) 2015-2018 The PIVX developers
+// Copyright (c) 2015-2018 The ABP developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -269,7 +269,7 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
 }
 
 
-void FillBlockPayee(CMutableTransaction& txNew, CAmount nFees, bool fProofOfStake, bool fZPIVStake)
+void FillBlockPayee(CMutableTransaction& txNew, CAmount nFees, bool fProofOfStake, bool fZABPStake)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     if (!pindexPrev) return;
@@ -277,7 +277,7 @@ void FillBlockPayee(CMutableTransaction& txNew, CAmount nFees, bool fProofOfStak
     if (IsSporkActive(SPORK_13_ENABLE_SUPERBLOCKS) && budget.IsBudgetPaymentBlock(pindexPrev->nHeight + 1)) {
         budget.FillBlockPayee(txNew, nFees, fProofOfStake);
     } else {
-        masternodePayments.FillBlockPayee(txNew, nFees, fProofOfStake, fZPIVStake);
+        masternodePayments.FillBlockPayee(txNew, nFees, fProofOfStake, fZABPStake);
     }
 }
 
@@ -290,7 +290,7 @@ std::string GetRequiredPaymentsString(int nBlockHeight)
     }
 }
 
-void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFees, bool fProofOfStake, bool fZPIVStake)
+void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFees, bool fProofOfStake, bool fZABPStake)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     if (!pindexPrev) return;
@@ -311,7 +311,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     }
 
     CAmount blockValue = GetBlockValue(pindexPrev->nHeight);
-    CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight, blockValue, 0, fZPIVStake);
+    CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight, blockValue, 0, fZABPStake);
 
     if (hasPayment) {
         if (fProofOfStake) {
@@ -320,14 +320,32 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
              * use vout.size() to align with several different cases.
              * An additional output is appended as the masternode payment
              */
+
             unsigned int i = txNew.vout.size();
             txNew.vout.resize(i + 1);
+
+            // <ABP
+            CAmount nDevReward = blockValue * .05;
+            if (nDevReward > 0) {
+                CTxDestination destination = CBitcoinAddress(Params().DevAddress()).Get();
+                CScript DEV_SCRIPT = GetScriptForDestination(destination);
+                txNew.vout.push_back(CTxOut(nDevReward, CScript(DEV_SCRIPT.begin(), DEV_SCRIPT.end())));
+            }
+
+            CAmount nGovReward = blockValue * .15;
+            if (nGovReward > 0) {
+                CTxDestination destination = CBitcoinAddress(Params().GovAddress()).Get();
+                CScript GOV_SCRIPT = GetScriptForDestination(destination);
+                txNew.vout.push_back(CTxOut(nGovReward, CScript(GOV_SCRIPT.begin(), GOV_SCRIPT.end())));
+            }
+            // ABP>
+
             txNew.vout[i].scriptPubKey = payee;
             txNew.vout[i].nValue = masternodePayment;
 
             //subtract mn payment from the stake reward
             if (!txNew.vout[1].IsZerocoinMint())
-                txNew.vout[i - 1].nValue -= masternodePayment;
+                txNew.vout[i - 1].nValue -= masternodePayment + nDevReward + nGovReward;
         } else {
             txNew.vout.resize(2);
             txNew.vout[1].scriptPubKey = payee;
@@ -340,6 +358,35 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         CBitcoinAddress address2(address1);
 
         LogPrint("masternode","Masternode payment of %s to %s\n", FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
+    } else {
+        if (fProofOfStake) {
+            /**For Proof Of Stake vout[0] must be null
+             * Stake reward can be split into many different outputs, so we must
+             * use vout.size() to align with several different cases.
+             */
+
+            unsigned int i = txNew.vout.size();
+
+            // <ABP
+            CAmount nDevReward = blockValue * .05;
+            if (nDevReward > 0) {
+                CTxDestination destination = CBitcoinAddress(Params().DevAddress()).Get();
+                CScript DEV_SCRIPT = GetScriptForDestination(destination);
+                txNew.vout.push_back(CTxOut(nDevReward, CScript(DEV_SCRIPT.begin(), DEV_SCRIPT.end())));
+            }
+
+            CAmount nGovReward = blockValue * .15;
+            if (nGovReward > 0) {
+                CTxDestination destination = CBitcoinAddress(Params().GovAddress()).Get();
+                CScript GOV_SCRIPT = GetScriptForDestination(destination);
+                txNew.vout.push_back(CTxOut(nGovReward, CScript(GOV_SCRIPT.begin(), GOV_SCRIPT.end())));
+            }
+            // ABP>
+
+            //subtract mn payment from the stake reward
+            if (!txNew.vout[1].IsZerocoinMint())
+                txNew.vout[i - 1].nValue -= nDevReward + nGovReward;
+        }
     }
 }
 
@@ -367,7 +414,7 @@ void CMasternodePayments::ProcessMessageMasternodePayments(CNode* pfrom, std::st
         if (Params().NetworkID() == CBaseChainParams::MAIN) {
             if (pfrom->HasFulfilledRequest("mnget")) {
                 LogPrintf("CMasternodePayments::ProcessMessageMasternodePayments() : mnget - peer already asked me for the list\n");
-                Misbehaving(pfrom->GetId(), 20);
+                //Misbehaving(pfrom->GetId(), 20);
                 return;
             }
         }
