@@ -1,5 +1,7 @@
 // Copyright (c) 2014-2016 The Dash developers
-// Copyright (c) 2016-2018 The ABP developers
+// Copyright (c) 2016-2018 The PivX developers
+// Copyright (c) 2018-2018 The ABP developers
+
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
